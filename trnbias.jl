@@ -75,7 +75,7 @@ function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
     ibestlong = 0
 
     small_float = 1e-60
-    for ilong in 2:199
+    @inbounds for ilong in 2:199
         for ishort in 1:(ilong-1)
             total_return = zero(FloatT)
             win_sum = small_float
@@ -86,8 +86,8 @@ function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
 
             for i in (ilong-1:ncases-2)
                 if i == ilong-1
-                    short_sum = sum(x[(i-ishort+2):i+1])
-                    long_sum = sum(x[(i-ilong+2):i+1])
+                    short_sum = sum(@view x[(i-ishort+2):i+1])
+                    long_sum = sum(@view x[(i-ilong+2):i+1])
                 else
                     short_sum += x[i+1] - x[i-ishort+1]
                     long_sum += x[i+1] - x[i-ilong+1]
@@ -145,8 +145,8 @@ function test_system(ncases::Integer, x::Vector{Float64}, short_term::Integer, l
     sum1 = zero(FloatT)
 
     for i in (long_term-1:ncases-2)
-        short_mean = sum(x[i-short_term+2:i+1]) / short_term
-        long_mean = sum(x[i-long_term+2:i+1]) / long_term
+        short_mean = sum(@view x[i-short_term+2:i+1]) / short_term
+        long_mean = sum(@view x[i-long_term+2:i+1]) / long_term
 
         if short_mean > long_mean
             sum1 += x[i+2] - x[i+1]
@@ -175,8 +175,9 @@ function main()
 end
 
 function optimize(which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
-    rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
-#    rng = Random.default_rng()
+#    rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
+    rng = Random.default_rng()
+    @show typeof(rng)
     _optimize(rng, which, ncases, save_trend, nreps)
 end
 
@@ -187,7 +188,7 @@ function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nr
     is_mean = zero(FloatT)
     oos_mean = zero(FloatT)
 
-    for irep in 1:nreps
+    @inbounds for irep in 1:nreps
         # Generate in-sample
         trend = save_trend
         x[1] = zero(FloatT)
