@@ -68,7 +68,7 @@ function Base.rand(rng::MarsagliaRng)::Float64
     mult * next_u32(rng)
 end
 
-function opt_params(which::Int, ncases::Int, x::Vector{Float64})
+function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
     FloatT = eltype(x)
     best_perf = typemin(FloatT)
     ibestshort = 0
@@ -140,7 +140,7 @@ function opt_params(which::Int, ncases::Int, x::Vector{Float64})
     ParamsResult(ibestshort, ibestlong, best_perf)
 end
 
-function test_system(ncases::Int, x::Vector{Float64}, short_term::Int, long_term::Int)
+function test_system(ncases::Integer, x::Vector{Float64}, short_term::Integer, long_term::Integer)
     FloatT = eltype(x)
     sum1 = zero(FloatT)
 
@@ -174,13 +174,13 @@ function main()
     optimize(which, ncases, save_trend, nreps)
 end
 
-function optimize(which::Int, ncases::Int, save_trend::Float64, nreps::Int)
+function optimize(which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
     rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
 #    rng = Random.default_rng()
     _optimize(rng, which, ncases, save_trend, nreps)
 end
 
-function _optimize(rng, which::Int, ncases::Int, save_trend::Float64, nreps::Int)
+function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
     FloatT = typeof(save_trend)
     x = zeros(FloatT, ncases)
 
