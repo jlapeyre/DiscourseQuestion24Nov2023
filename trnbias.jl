@@ -57,33 +57,32 @@ function next_u32(rng::MarsagliaRng)::UInt32
     return rng.q[rng.i+1]
 end
 
-
-
 function next_u64(rng::MarsagliaRng)::UInt64
     UInt64(next_u32(rng))
 end
 
+# EDIT: extend Base.rand rather than shadowing it.
 # Sample function for generating a Float64
-function rand(rng::MarsagliaRng)::Float64
+function Base.rand(rng::MarsagliaRng)::Float64
     mult = 1.0 / typemax(UInt32)
     mult * next_u32(rng)
 end
 
-
-
 function opt_params(which::Int, ncases::Int, x::Vector{Float64})
-    best_perf = -Inf
+    FloatT = eltype(x)
+    best_perf = typemin(FloatT)
     ibestshort = 0
     ibestlong = 0
 
+    small_float = 1e-60
     for ilong in 2:199
         for ishort in 1:(ilong-1)
-            total_return = 0.0
-            win_sum = 1e-60
-            lose_sum = 1e-60
-            sum_squares = 1e-60
-            short_sum = 0.0
-            long_sum = 0.0
+            total_return = zero(FloatT)
+            win_sum = small_float
+            lose_sum = small_float
+            sum_squares = small_float
+            short_sum = zero(FloatT)
+            long_sum = zero(FloatT)
 
             for i in (ilong-1:ncases-2)
                 if i == ilong-1
@@ -99,11 +98,11 @@ function opt_params(which::Int, ncases::Int, x::Vector{Float64})
                 long_mean = long_sum / ilong
 
                 ret = (short_mean > long_mean) ? x[i+2] - x[i+1] :
-                      (short_mean < long_mean) ? x[i+1] - x[i+2] : 0.0
+                      (short_mean < long_mean) ? x[i+1] - x[i+2] : zero(FloatT)
 
                 total_return += ret
                 sum_squares += ret^2
-                if ret > 0.0
+                if ret > zero(FloatT)
                     win_sum += ret
                 else
                     lose_sum -= ret
@@ -142,7 +141,8 @@ function opt_params(which::Int, ncases::Int, x::Vector{Float64})
 end
 
 function test_system(ncases::Int, x::Vector{Float64}, short_term::Int, long_term::Int)
-    sum1 = 0.0
+    FloatT = eltype(x)
+    sum1 = zero(FloatT)
 
     for i in (long_term-1:ncases-2)
         short_mean = sum(x[i-short_term+2:i+1]) / short_term
@@ -175,17 +175,22 @@ function main()
 end
 
 function optimize(which::Int, ncases::Int, save_trend::Float64, nreps::Int)
-    x = zeros(Float64, ncases)
-
-    is_mean = 0.0
-    oos_mean = 0.0
-
     rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
+#    rng = Random.default_rng()
+    _optimize(rng, which, ncases, save_trend, nreps)
+end
+
+function _optimize(rng, which::Int, ncases::Int, save_trend::Float64, nreps::Int)
+    FloatT = typeof(save_trend)
+    x = zeros(FloatT, ncases)
+
+    is_mean = zero(FloatT)
+    oos_mean = zero(FloatT)
 
     for irep in 1:nreps
         # Generate in-sample
         trend = save_trend
-        x[1] = 0.0
+        x[1] = zero(FloatT)
         for i in 2:ncases
             if (i - 1) % 50 == 0
                 trend = -trend
@@ -197,7 +202,7 @@ function optimize(which::Int, ncases::Int, save_trend::Float64, nreps::Int)
 
         # Generate out-of-sample
         trend = save_trend
-        x[1] = 0.0
+        x[1] = zero(FloatT)
         for i in 2:ncases
             if (i - 1) % 50 == 0
                 trend = -trend
