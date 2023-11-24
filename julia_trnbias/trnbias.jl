@@ -81,15 +81,29 @@ function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
             short_sum = zero(FloatT)
             long_sum = zero(FloatT)
 
-            for i in (ilong-1:ncases-2)
-                if i == ilong-1
-                    short_sum = sum(@view x[(i-ishort+2):i+1])
-                    long_sum = sum(@view x[(i-ilong+2):i+1])
-                else
-                    short_sum += x[i+1] - x[i-ishort+1]
-                    long_sum += x[i+1] - x[i-ilong+1]
-                end
 
+            let i = ilong - 1
+                short_sum = sum(@view x[(i-ishort+2):i+1])
+                long_sum = sum(@view x[(i-ilong+2):i+1])
+
+                short_mean = short_sum / ishort
+                long_mean = long_sum / ilong
+
+                ret = (short_mean > long_mean) ? x[i+2] - x[i+1] :
+                      (short_mean < long_mean) ? x[i+1] - x[i+2] : zero(FloatT)
+
+                total_return += ret
+                sum_squares += ret^2
+                if ret > zero(FloatT)
+                    win_sum += ret
+                else
+                    lose_sum -= ret
+                end
+            end
+
+            for i in (ilong:ncases-2)
+                short_sum += x[i+1] - x[i-ishort+1]
+                long_sum += x[i+1] - x[i-ilong+1]
 
                 short_mean = short_sum / ishort
                 long_mean = long_sum / ilong
