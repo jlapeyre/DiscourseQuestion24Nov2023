@@ -164,8 +164,6 @@ function main()
         return
     end
 
-    println("sikeinanan")
-
     which = parse(Int, ARGS[1])
     ncases = parse(Int, ARGS[2])
     save_trend = parse(Float64, ARGS[3])
@@ -175,13 +173,16 @@ function main()
 end
 
 function optimize(which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
-#    rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
+    #    rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
     rng = Random.default_rng()
     @show typeof(rng)
+#    _optimize(rng, ncases, save_trend, nreps)
     _optimize(rng, which, ncases, save_trend, nreps)
 end
 
 function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
+    print_results = false
+
     FloatT = typeof(save_trend)
     x = zeros(FloatT, ncases)
 
@@ -216,8 +217,10 @@ function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nr
 
         is_mean += params_result.performance
         oos_mean += oos_perf
-        # @printf("%3d: %3d %3d  %8.4f %8.4f (%8.4f)\n",
-        #     irep, params_result.short_term, params_result.long_term, params_result.performance, oos_perf, params_result.performance - oos_perf)
+        if print_results
+            @printf("%3d: %3d %3d  %8.4f %8.4f (%8.4f)\n",
+                    irep, params_result.short_term, params_result.long_term, params_result.performance, oos_perf, params_result.performance - oos_perf)
+        end
 
     end
 
@@ -227,3 +230,5 @@ function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nr
     println("Mean IS=$is_mean  OOS=$oos_mean  Bias=$(is_mean - oos_mean)")
 
 end
+
+main()
