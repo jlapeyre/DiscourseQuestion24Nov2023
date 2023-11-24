@@ -101,15 +101,18 @@ function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
                 end
             end
 
+            # General case; i != ilong - 1
             for i in (ilong:ncases-2)
-                short_sum += x[i+1] - x[i-ishort+1]
-                long_sum += x[i+1] - x[i-ilong+1]
+                x1 = x[i+1]
+
+                short_sum += x1 - x[i-ishort+1]
+                long_sum += x1 - x[i-ilong+1]
 
                 short_mean = short_sum / ishort
                 long_mean = long_sum / ilong
 
-                ret = (short_mean > long_mean) ? x[i+2] - x[i+1] :
-                      (short_mean < long_mean) ? x[i+1] - x[i+2] : zero(FloatT)
+                ret = (short_mean > long_mean) ? x[i+2] - x1 :
+                      (short_mean < long_mean) ? x1 - x[i+2] : zero(FloatT)
 
                 total_return += ret
                 sum_squares += ret^2
