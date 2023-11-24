@@ -169,11 +169,8 @@ function main()
     optimize(which, ncases, save_trend, nreps)
 end
 
-function optimize(which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer)
-    #    rng = MarsagliaRng(UInt8.([33, 0, 0, 0]))
-    rng = Random.default_rng()
+function optimize(which::Integer, ncases::Integer, save_trend::Float64, nreps::Integer, rng=MarsagliaRng(UInt8.([33, 0, 0, 0])))
     @show typeof(rng)
-#    _optimize(rng, ncases, save_trend, nreps)
     _optimize(rng, which, ncases, save_trend, nreps)
 end
 
