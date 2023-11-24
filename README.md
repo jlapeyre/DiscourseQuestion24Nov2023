@@ -44,7 +44,7 @@ Mean IS=0.04462564329047784  OOS=-0.0031496723033457423  Bias=0.0477753155938235
 
 #### C++ version
 
-About 11.2 s
+About 11.2s for gcc, and 8.9s for clang
 
 ```shell
 shell> cd cpp_trnbias
