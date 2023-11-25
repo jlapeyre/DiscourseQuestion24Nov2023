@@ -3,7 +3,7 @@ You can run trnbias.jl like this.
 #### At the Julia REPL
 
 ```shell
-> julia -q  --optimize=3 -O3
+> julia -q -O
 ```
 
 ```julia
@@ -19,7 +19,7 @@ compile time might be less than fluctuations in the run time.
 
 
 ```shell
-/usr/bin/time julia --optimize=3 -O3 trnbias.jl 0 1000 0.01 200
+/usr/bin/time julia -O trnbias.jl 0 1000 0.01 200
 ```
 
 The latter adds a few hundred milliseconds in compile time
