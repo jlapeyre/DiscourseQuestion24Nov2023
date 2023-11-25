@@ -65,7 +65,7 @@ function Base.rand(rng::MarsagliaRng)::Float64
     mult * next_u32(rng)
 end
 
-function opt_params(which::Integer, ncases::Integer, x::Vector{Float64})
+function opt_params(w::Val{which}, ncases::Integer, x::Vector{Float64}) where which
     FloatT = eltype(x)
     best_perf = typemin(FloatT)
     ibestshort = 0
@@ -211,7 +211,7 @@ function _optimize(rng, which::Integer, ncases::Integer, save_trend::Float64, nr
             x[i] = x[i-1] + trend + rand(rng) + rand(rng) - rand(rng) - rand(rng)
         end
 
-        params_result = opt_params(which, ncases, x)
+        params_result = opt_params(Val(which), ncases, x)
 
         # Generate out-of-sample
         trend = save_trend
